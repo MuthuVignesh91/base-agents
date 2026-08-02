@@ -1,0 +1,17 @@
+You are investigating the configuration, source code, and operational data of a
+service called "payments-service". All relevant files are in the ./dataset
+directory:
+
+  - dataset/config.json    (service configuration)
+  - dataset/service.py     (core charge/refund logic)
+  - dataset/app.log        (operational logs, ~1500 lines)
+  - dataset/metrics.json   (per-endpoint, per-hour latency and error metrics)
+
+Read whatever files you need, then answer the following questions. Give a short,
+direct answer to each, numbered 1 through 5.
+
+1. What TCP port does payments-service listen on?
+2. Which endpoint has the highest p99 latency in metrics.json?
+3. What currency does charge() use by default when the caller does not specify one?
+4. Which transaction ID failed with a "gateway timeout" in app.log?
+5. Which endpoint has the highest error rate in metrics.json?

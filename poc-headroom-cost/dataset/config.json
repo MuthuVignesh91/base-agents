@@ -1,0 +1,50 @@
+{
+  "service": {
+    "name": "payments-service",
+    "version": "3.4.1",
+    "port": 8443,
+    "host": "0.0.0.0",
+    "log_level": "info",
+    "request_timeout_seconds": 15,
+    "workers": 8,
+    "graceful_shutdown_seconds": 20
+  },
+  "database": {
+    "primary_host": "pg-primary.internal",
+    "replica_host": "pg-replica.internal",
+    "port": 5432,
+    "name": "payments",
+    "pool_size": 20,
+    "ssl_mode": "require",
+    "statement_timeout_ms": 5000
+  },
+  "gateway": {
+    "provider": "stripe",
+    "base_url": "https://api.gateway.internal/v2",
+    "max_retries": 3,
+    "timeout_seconds": 30,
+    "backoff_ms": 250,
+    "circuit_breaker": {
+      "enabled": true,
+      "failure_threshold": 20,
+      "reset_seconds": 60
+    }
+  },
+  "regions": {
+    "allowed": ["us-east-1", "us-west-2", "eu-west-1"],
+    "default": "us-east-1"
+  },
+  "feature_flags": {
+    "instant_payouts": true,
+    "fraud_scoring_v2": false,
+    "async_settlement": true,
+    "multi_currency": true,
+    "webhook_retries": true
+  },
+  "limits": {
+    "max_amount_cents": 500000,
+    "daily_volume_cents": 250000000,
+    "rate_limit_per_minute": 600,
+    "max_concurrent_charges": 128
+  }
+}

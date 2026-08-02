@@ -1,0 +1,48 @@
+{
+  "baseline": [
+    {
+      "file": "run_1.json",
+      "passed": 5,
+      "total": 5,
+      "failures": [],
+      "is_error": false
+    },
+    {
+      "file": "run_2.json",
+      "passed": 5,
+      "total": 5,
+      "failures": [],
+      "is_error": false
+    },
+    {
+      "file": "run_3.json",
+      "passed": 5,
+      "total": 5,
+      "failures": [],
+      "is_error": false
+    }
+  ],
+  "headroom": [
+    {
+      "file": "run_1.json",
+      "passed": 5,
+      "total": 5,
+      "failures": [],
+      "is_error": false
+    },
+    {
+      "file": "run_2.json",
+      "passed": 5,
+      "total": 5,
+      "failures": [],
+      "is_error": false
+    },
+    {
+      "file": "run_3.json",
+      "passed": 5,
+      "total": 5,
+      "failures": [],
+      "is_error": false
+    }
+  ]
+}

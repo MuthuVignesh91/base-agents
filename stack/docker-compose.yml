@@ -1,0 +1,78 @@
+name: base-agents
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Single stack for the RAG agent PoC. One project, one network ("ragflow"),
+# one `docker compose up`.
+#
+#   RAG path : ragflow-cpu + infinity + mysql + minio + redis + tei (embeddings)
+#   LLM path : headroom (compress + route to llm-gateway / openrouter / ollama)
+#
+# RAGFlow's deployment is vendored under ./ragflow (pinned to tag v0.26.4) and
+# pulled in via `include`. Its knobs live in ./ragflow/docker/.env
+# (DOC_ENGINE=infinity, TEI bge-small, ports). Headroom's knobs live in ./.env.
+# ─────────────────────────────────────────────────────────────────────────────
+
+include:
+  - path: ragflow/docker/docker-compose.yml
+    project_directory: ragflow/docker
+    env_file: ragflow/docker/.env
+
+services:
+  headroom:
+    build: .
+    image: base-agents/headroom:0.32.1
+    container_name: headroom
+    restart: unless-stopped
+    env_file: .env
+    # Provider + mode are a .env flip; targets/keys arrive via env_file.
+    command: >
+      proxy --host 0.0.0.0 --port 8787
+      --mode ${HEADROOM_MODE:-token}
+      --backend ${HEADROOM_BACKEND:-anthropic}
+      --log-file /logs/proxy.jsonl
+    ports:
+      - "${HEADROOM_PORT:-8787}:8787"
+    volumes:
+      - ./logs:/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8787/stats', timeout=3).status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks:
+      - ragflow   # same network RAGFlow's services use (so the agent can reach both by name)
+
+  # Override the vendored ragflow-cpu to ALSO run RAGFlow's MCP retrieve server,
+  # bound to 0.0.0.0 so the agent container can reach it (default is 127.0.0.1).
+  # self-host mode → SSE transport (streamable-http unsupported in host mode).
+  # Key comes from stack/.env (MCP_HOST_API_KEY); no secret committed.
+  ragflow-cpu:
+    command:
+      - --enable-adminserver
+      - --init-model-provider-tables
+      - --enable-mcpserver
+      - --mcp-host=0.0.0.0
+      - --mcp-port=9382
+      - --mcp-base-url=http://127.0.0.1:9380
+      - --mcp-mode=self-host
+      - --mcp-host-api-key=${MCP_HOST_API_KEY}
+      - --no-transport-streamable-http-enabled
+
+  # RAG agent: claude-cli that retrieves via RAGFlow MCP + reasons via headroom.
+  # Always-on service (starts with `up`); query it via:
+  #   docker exec agent /work/run.sh -p "your question"
+  agent:
+    build: ./agent
+    image: base-agents/agent:latest
+    container_name: agent
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      ANTHROPIC_BASE_URL: http://headroom:8787
+      ANTHROPIC_AUTH_TOKEN: ${AIHUB_TOKEN}
+      ANTHROPIC_MODEL: ${AGENT_MODEL:-claude-sonnet-4-6}
+    networks:
+      - ragflow

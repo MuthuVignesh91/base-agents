@@ -1,0 +1,7 @@
+[
+  {"id": 1, "question": "What TCP port does payments-service listen on?", "expected": "8443", "source": "config.json"},
+  {"id": 2, "question": "Which endpoint has the highest p99 latency in metrics.json?", "expected": "payouts", "source": "metrics.json"},
+  {"id": 3, "question": "What currency does charge() use by default?", "expected": "USD", "source": "service.py"},
+  {"id": 4, "question": "Which transaction ID failed with a gateway timeout?", "expected": "txn_10482", "source": "app.log"},
+  {"id": 5, "question": "Which endpoint has the highest error rate in metrics.json?", "expected": "webhooks", "source": "metrics.json"}
+]
