@@ -1,0 +1,14 @@
+# base-agents — Python dependencies (install into ./.venv with Python 3.13)
+#
+# Scope: these deps run Headroom (the compression proxy under test) and the
+# PoC's analysis scripts. Note: claude-cli is a separate global CLI (Node), it
+# does NOT live in this venv — the venv only hosts `headroom proxy` + Python.
+
+# Core: Headroom compression proxy. The [proxy] extra provides the
+# `headroom proxy` command used to sit between claude-cli and Anthropic.
+headroom-ai[proxy]==0.32.1
+
+# Optional upgrades (uncomment if a PoC needs them):
+#   headroom-ai[code]  # tree-sitter AST-aware code compression
+#   headroom-ai[ml]    # LLMLingua text compression (downloads models, heavier)
+#   headroom-ai[all]   # everything above
